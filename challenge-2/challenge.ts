@@ -31,7 +31,6 @@ async function readCSV(): Promise<{ name: string; url: string }[]> {
         const name = row['Company Name'];
         const url = row['YC URL'];
 
-        // Ensure both name and URL are present
         if (name && url) {
           companies.push({ name, url });
         }
@@ -62,10 +61,9 @@ export async function processCompanyList() {
           launchPostUrl: '',
         };
 
-        // Wait for the content to load
+        
         await page.waitForSelector('h1');
 
-        // Company name (assuming it's the first h1 on the page)
         companyData.name = await page.$eval(
           'h1',
           (el:HTMLHeadingElement) => el.textContent?.trim() || ''
