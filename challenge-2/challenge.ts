@@ -3,7 +3,7 @@ import * as csv from 'fast-csv';
 import * as fs from 'fs';
 import fsExtra from 'fs-extra';
 
-
+// Define the structure for storing company data
 interface CompanyData {
   name: string;
   teamSize: number;
@@ -13,14 +13,17 @@ interface CompanyData {
   launchPostUrl: string;
 }
 
+// Define the structure for founder information
 interface Founder {
   name: string;
   description: string;
 }
 
+// Path to the input CSV file and output JSON file
 const CSV_PATH = './inputs/companies.csv';
 const OUTPUT_PATH = './out/scraped.json';
 
+// Function to read the CSV file and return an array of company names and URLs
 async function readCSV(): Promise<{ name: string; url: string }[]> {
   return new Promise((resolve, reject) => {
     const companies: { name: string; url: string }[] = [];
@@ -28,6 +31,7 @@ async function readCSV(): Promise<{ name: string; url: string }[]> {
     fs.createReadStream(CSV_PATH)
       .pipe(csv.parse({ headers: true }))
       .on('data', (row) => {
+        // Extract the company name and URL from the CSV rows
         const name = row['Company Name'];
         const url = row['YC URL'];
 
@@ -40,6 +44,7 @@ async function readCSV(): Promise<{ name: string; url: string }[]> {
   });
 }
 
+// Main function to process the list of companies from the CSV
 export async function processCompanyList() {
   try {
     const companies = await readCSV();
@@ -69,7 +74,7 @@ export async function processCompanyList() {
           (el:HTMLHeadingElement) => el.textContent?.trim() || ''
         );
 
-        // Team size (assuming it's in a span within a div that contains the text "Team size")
+        // Team size 
         companyData.teamSize = await page.evaluate(() => {
           const teamSizeDiv = Array.from(document.querySelectorAll('div')).find(
             (div) => {
@@ -87,7 +92,7 @@ export async function processCompanyList() {
           return 0;
         });
 
-        // Jobs (assuming they're in a list within a section with a heading "Open Positions")
+        // Jobs 
         companyData.jobCount = await page.evaluate(() => {
           const jobsDiv = Array.from(document.querySelectorAll('div')).find(
             (div) => {
@@ -102,7 +107,7 @@ export async function processCompanyList() {
           return 0;
         });
 
-        // Founders (assuming they're in a list or series of divs after a heading "Founders")
+        // Founders 
         companyData.founders = await page.evaluate(() => {
           const founderDivs = Array.from(
             document.querySelectorAll('div.flex-grow')
